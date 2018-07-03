@@ -1,0 +1,12 @@
+$(P)$(R)ESLO
+$(P)$(R)EOFF
+$(P)$(R)GasSetPoint_RBV.ESLO
+$(P)$(R)GasTemp_RBV.ESLO
+$(P)$(R)TargetTemp_RBV.ESLO
+$(P)$(R)GasSetPoint.ESLO
+$(P)$(R)CoolTemp.ESLO
+$(P)$(R)GasSetPoint_RBV.EOFF
+$(P)$(R)GasTemp_RBV.EOFF
+$(P)$(R)TargetTemp_RBV.EOFF
+$(P)$(R)GasSetPoint.EOFF
+$(P)$(R)CoolTemp.EOFF
