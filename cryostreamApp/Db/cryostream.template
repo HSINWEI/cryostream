@@ -55,6 +55,7 @@ record(ai, "$(P)$(R)GasError_RBV") {
   field(EGU, "K")
   field(PREC, "2")
   field(ASLO, "0.01")
+  field(LINR, "LINEAR")
 }
 
 record(mbbi, "$(P)$(R)RunMode_RBV") {
@@ -143,6 +144,7 @@ record(ai, "$(P)$(R)EvapTemp_RBV") {
   field(HOPR, "500")
   field(LOPR, "80")
   field(ASLO, "0.01")
+  field(LINR, "LINEAR")
 }
 
 record(ai, "$(P)$(R)SuctTemp_RBV") {
@@ -155,6 +157,7 @@ record(ai, "$(P)$(R)SuctTemp_RBV") {
   field(HOPR, "500")
   field(LOPR, "80")
   field(ASLO, "0.01")
+  field(LINR, "LINEAR")
 }
 
 record(longin, "$(P)$(R)Remaining_RBV") {
@@ -175,6 +178,7 @@ record(ai, "$(P)$(R)GasFlow_RBV") {
   field(HOPR, "10")
   field(LOPR, "0")
   field(ASLO, "0.1")
+  field(LINR, "LINEAR")
 }
 
 record(longin, "$(P)$(R)GasHeat_RBV") {
@@ -215,6 +219,7 @@ record(ai, "$(P)$(R)LinePressure_RBV") {
   field(EGU, "bar")
   field(PREC, "2")
   field(ASLO, "0.01")
+  field(LINR, "LINEAR")
 }
 
 record(mbbi, "$(P)$(R)AlarmCode_RBV") {
