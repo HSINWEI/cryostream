@@ -1,0 +1,85 @@
+## CSCOMMAND_RESTART=10, /* Restart a Cryostream which has shutdown */
+## Meaning: Stop Cryostream and re-initialise system back to "Ready"
+CmdRestart {
+	out 2 10;
+}
+
+## CSCOMMAND_RAMP=11, /* Ramp command identifier - parameters follow */
+## The CSCOMMAND_RAMP command packet, size = 6
+## The Params[] array consists of a short containing 
+## desired ramp rate in K/hour,
+## followed by a short containing 
+## the end temperature in centi-Kelvin
+## Meaning: Change gas temperature to a set value at a controlled rate
+CmdRamp {
+	out 6 11,"%(A).2r%(B)\$1.2r";
+}
+
+## CSCOMMAND_PLAT=12, /* Plat command identifier - parameter follows */
+## The CSCOMMAND_PLAT command packet, size = 4
+## The Params[] array consists of a short containing 
+## the duration of the Plat in minutues
+## Meaning: Maintain the current temperature for a set amount of time.
+CmdPlat {
+	out 4 12,"%.2r";
+}
+
+## CSCOMMAND_HOLD=13, /* Hold command identifier - enter programmed Hold */
+## Meaning: Stay at the current temperature indefinitely with no ability to resume the previous command
+## (unlike the SUSPEND and RESUME functions).
+CmdHold {
+	out 2 13;
+}
+
+## CSCOMMAND_COOL=14, /* Cool command identifier - parameter follows */
+## The CSCOMMAND_COOL command packet, size = 4
+## The Params[] array consists of a short containing 
+## the end temperature in centi-Kelvin
+## Meaning: Make gas temperature decrease to a set value as quickly as possible
+CmdCool {
+	out 4 14,"%.2r";
+}
+
+## CSCOMMAND_END=15, /* End command identifier - parameter follows */
+## The CSCOMMAND_END command packet, size = 4
+## The Params[] array consists of a short containing 
+## desired ramp rate in K/hour
+## Meaning: Bring the gas temperature to 300 K, then shut down
+CmdEnd {
+	out 4 15,"%.2r";
+}
+
+
+## CSCOMMAND_PURGE=16, /* Purge command identifier */
+## Meaning: Bring the gas temperature and the internal temperature to 300 K then shut down
+CmdPurge {
+	out 2 16;
+}
+
+## CSCOMMAND_PAUSE=17, /* Pause command identifier - enter temporary Hold */
+## a.k.a the SUSPEND command
+## Meaning: Interrupt the current commands and maintain the current gas temperature until instructed
+## otherwise by a RESUME command.
+CmdPause {
+	out 2 17;
+}
+
+## CSCOMMAND_RESUME=18, /* Resume command identifier - exit temporary Hold */
+## Meaning: Resume the previous command before the SUSPEND command was given
+CmdResume {
+	out 2 18;
+}
+
+## CSCOMMAND_STOP=19, /* Stop command identifier */
+CmdStop {
+	out 2 19;
+}
+
+## CSCOMMAND_TURBO=20, /* Turbo command identifier - parameter follows */
+## The CSCOMMAND_TURBO command packet, size = 3
+## The Params[] array consists of a single char taking the value 
+## either 0 (switch Turbo off) or 1 (switch Turbo on)
+CmdTurbo {
+	out 3 20,"%.1r";
+}
+
