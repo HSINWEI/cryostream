@@ -83,3 +83,11 @@ CmdTurbo {
 	out 3 20,"%.1r";
 }
 
+## CSCOMMAND_SETFORMAT=40, /* SetFormat command identifier - parameter follows */
+## The CSCOMMAND_SETFORMAT command packet, size = 3
+## The Params[] array consists of a single char taking the value 
+## either 0 (old format) or 1 (extended format)
+CmdSetFormat {
+    out 3 40,"%.1r";
+}
+

@@ -1,0 +1,69 @@
+record(bo, "$(P)$(R)SetFormat") {
+  field(DESC, "Set Format")
+  field(DTYP, "stream")
+  field(ZNAM, "Old Format")
+  field(ONAM, "Extended Format")
+  field(OUT, "@cryostream_cmd.proto CmdSetFormat() $(PORT)")
+}
+
+record(bi, "$(P)$(R)TurboMode_RBV") {
+  field(DESC, "In Turbo Mode?")
+  field(DTYP, "stream")
+  field(ZNAM, "Non-Turbo Mode")
+  field(ONAM, "Turbo Mode")
+  field(INP, "@cryostream_ext.proto ReadTurboMode() $(PORT)")
+  field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)$(R)HardwareType_RBV") {
+  field(DESC, "Hardware Type")
+  field(SCAN, "I/O Intr")
+  field(DTYP, "stream")
+  field(INP, "@cryostream_ext.proto ReadHardwareType() $(PORT)")
+}
+
+record(longin, "$(P)$(R)LNLevel_RBV") {
+  field(DESC, "LN Level")
+  field(SCAN, "I/O Intr")
+  field(DTYP, "stream")
+  field(INP, "@cryostream_ext.proto ReadLNLevel() $(PORT)")
+  field(EGU, "%")
+  field(HOPR, "100")
+  field(LOPR, "0")
+}
+
+record(longin, "$(P)$(R)AverageGasHeat_RBV") {
+  field(DESC, "LN Level")
+  field(SCAN, "I/O Intr")
+  field(DTYP, "stream")
+  field(INP, "@cryostream_ext.proto ReadAverageGasHeat() $(PORT)")
+  field(EGU, "%")
+  field(HOPR, "100")
+  field(LOPR, "0")
+}
+
+record(longin, "$(P)$(R)AverageSuctHeat_RBV") {
+  field(DESC, "LN Level")
+  field(SCAN, "I/O Intr")
+  field(DTYP, "stream")
+  field(INP, "@cryostream_ext.proto ReadAverageSuctHeat() $(PORT)")
+  field(EGU, "%")
+  field(HOPR, "100")
+  field(LOPR, "0")
+}
+
+record(longin, "$(P)$(R)TimeToFill_RBV") {
+  field(DESC, "LN Level")
+  field(SCAN, "I/O Intr")
+  field(DTYP, "stream")
+  field(INP, "@cryostream_ext.proto ReadTimeToFill() $(PORT)")
+  field(EGU, "min")
+}
+
+record(longin, "$(P)$(R)TotalHours_RBV") {
+  field(DESC, "LN Level")
+  field(SCAN, "I/O Intr")
+  field(DTYP, "stream")
+  field(INP, "@cryostream_ext.proto ReadTotalHours() $(PORT)")
+  field(EGU, "hour")
+}

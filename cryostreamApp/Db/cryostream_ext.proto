@@ -1,0 +1,261 @@
+#InTerminator = CR LF;
+#OutTerminator = CR LF;
+##Separator = " ";
+
+## Read Status Packets
+## the controller issues status packets of a fixed length at 1 second intervals
+## typedef struct {
+## 0        unsigned char Length; /* Length of this packet = 32 (bytes) */
+## 1        unsigned char Type; /* Status Packet ID = 1 */
+## 2        unsigned short GasSetPoint; /* Set Temp 100*K */
+## 4        unsigned short GasTemp; /* Gas Temp 100*K */
+## 6        signed short GasError; /* Error 100*K */
+## 8       unsigned char RunMode; /* The current 'run mode' */
+## 9       unsigned char PhaseId; /* theState.PhaseTable[0].Id */
+## 10      unsigned short RampRate; /* theState.PhaseTable[0].Temp */
+## 12      unsigned short TargetTemp; /* theState.PhaseTable[0].Temp */
+## 14      unsigned short EvapTemp; /* Evap temp, 100*K */
+## 16      unsigned short SuctTemp; /* Suct temp, 100*K */
+## 18      unsigned short Remaining; /* Time remaining in phase */
+## 20      unsigned char GasFlow; /* Gas flow, 10*l/min */
+## 21      unsigned char GasHeat; /* Gas heater, % */
+## 22      unsigned char EvapHeat; /* Evap heater, % */
+## 23      unsigned char SuctHeat; /* Suct heater, % */
+## 24      unsigned char LinePressure; /* Back pressure, 100*bar */
+## 25      unsigned char AlarmCode; /* Indicates most serious alarm condition */
+## 26      unsigned short RunTime; /* Time in minutes pump has been up */
+## 28      unsigned short ControllerNumber; /* Controller number, from ROM */
+## 30      unsigned char SoftwareVersion; /* Software version */
+## 31      unsigned char EvapAdjust; /* EvapAdjust vacuum compensation */
+## 32      unsigned char    TurboMode;           /* In Turbo mode ? */
+## 33      unsigned char    HardwareType;        /* See below */
+## 34      unsigned char    ShutterState*;       /* Shutter status or LN level - see below */
+## 35      unsigned char    ShutterTime**        /* Shutter time remaining or Suspended flag - see below */
+## 36      unsigned char    AverageGasHeat       /* Average value of gas heater */
+## 37      unsigned char    AverageSuctHeat      /* Average value of suct heater */
+## 38      unsigned short   TimeToFill*          /* From firmware version 150 this holds the time in mins until the next fill of the LN Dewar*/
+## 40      unsigned short   TotalHours;          /* Total number of hours device has run */
+## } CryostreamStatus ;
+##
+## example status packets
+## offset*10   0                   1                   2                   3
+## offset%10   0 1 2   4   6   8 9 0   2   4   6   8   0 1 2 3 4 5 6   8   0 1
+## size (byte) 1 1 2   2   2   2 1 2   2   2   2   2   1 1 1 1 1 1 2   2   1 1
+##             20016DAF6DAF00010503000073A03A4F70BCFFFE000000000002001601136E00
+##             20016DAF6DAF00010503000073A03A5270BCFFFE000000000002001601136E00
+##             20016DAE6DAE00010503000073A03A5470BCFFFE000000000002001601136E00
+##             20016DAD6DAD00010503000073A03A5670BCFFFE000000000002001601136E00
+##
+## offset*10   0                                  1                        2                                       3    
+## offset%10   0    1    2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1
+## size (byte) 1    1    2    2    2    2    1    2    2    2    2    2    1    1    1    1    1    1    2    2    1    1
+##             %*01r%*01r%*02r%*02r%*02r%*02r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r
+## byte order is big endian, i.e. most significant byte first
+
+## 0        unsigned char Length; /* Length of this packet = 32 (bytes) */
+## 1        unsigned char Type; /* Status Packet ID = 1 */
+
+## 2        unsigned short GasSetPoint; /* Set Temp 100*K */
+ReadGasSetPoint {
+## offset*10   0                               1                        2                                       3                                            4
+## offset%10   0   1   2   4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 4        unsigned short GasTemp; /* Gas Temp 100*K */
+ReadGasTemp {
+## offset*10   0                              1                        2                                       3                                             4
+## offset%10   0   1   2    4   6   8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1     2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 6        signed short GasError; /* Error 100*K */
+ReadGasError {
+## offset*10   0                              1                        2                                       3                                            4
+## offset%10   0   1   2    4    6  8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%2r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 8       unsigned char RunMode; /* The current 'run mode' */
+ReadRunMode {
+## offset*10   0                               1                        2                                       3                                            4
+## offset%10   0   1   2    4    6    8   9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 9       unsigned char PhaseId; /* theState.PhaseTable[0].Id */
+ReadPhaseId {
+## offset*10   0                               1                        2                                       3                                            4
+## offset%10   0   1   2    4    6    8    9   0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 10      unsigned short RampRate; /* theState.PhaseTable[0].Temp */
+ReadRampRate {
+## offset*10   0                                1                       2                                       3                                            4
+## offset%10   0   1   2    4    6    8    9    0   2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 12      unsigned short TargetTemp; /* theState.PhaseTable[0].Temp */
+ReadTargetTemp {
+## offset*10   0                                1                       2                                       3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2   4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 14      unsigned short EvapTemp; /* Evap temp, 100*K */
+ReadEvapTemp {
+## offset*10   0                                1                       2                                       3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4   6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 16      unsigned short SuctTemp; /* Suct temp, 100*K */
+ReadSuctTemp {
+## offset*10   0                                1                       2                                       3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6   8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 18      unsigned short Remaining; /* Time remaining in phase */
+ReadRemaining {
+## offset*10   0                                1                       2                                       3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8   0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 20      unsigned char GasFlow; /* Gas flow, 10*l/min */
+ReadGasFlow {
+## offset*10   0                                1                        2                                      3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0   1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 21      unsigned char GasHeat; /* Gas heater, % */
+ReadGasHeat {
+## offset*10   0                                1                        2                                      3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1   2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 22      unsigned char EvapHeat; /* Evap heater, % */
+ReadEvapHeat {
+## offset*10   0                                1                        2                                      3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2   3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 23      unsigned char SuctHeat; /* Suct heater, % */
+ReadSuctHeat {
+## offset*10   0                                1                        2                                      3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3   4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 24      unsigned char LinePressure; /* Back pressure, 100*bar */
+ReadLinePressure {
+## offset*10   0                                1                        2                                      3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4   5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 25      unsigned char AlarmCode; /* Indicates most serious alarm condition */
+ReadAlarmCode {
+## offset*10   0                                1                        2                                      3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5   6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 26      unsigned short RunTime; /* Time in minutes pump has been up */
+ReadRunTime {
+## offset*10   0                                1                        2                                      3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6   8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 28      unsigned short ControllerNumber; /* Controller number, from ROM */
+ReadControllerNumber {
+## offset*10   0                                1                        2                                      3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8   0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 30      unsigned char SoftwareVersion; /* Software version */
+ReadSoftwareVersion {
+## offset*10   0                                1                        2                                       3                                           4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0   1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 31      unsigned char EvapAdjust; /* EvapAdjust vacuum compensation */
+ReadEvapAdjust {
+## offset*10   0                                1                        2                                       3                                           4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1   2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+## example extended status packets
+## offset*10   0                   1                   2                   3                   4
+## offset%10   0 1 2   4   6   8 9 0   2   4   6   8   0 1 2 3 4 5 6   8   0 1 2 3 4 5 6 7 8   0
+## size (byte) 1 1 2   2   2   2 1 2   2   2   2   2   1 1 1 1 1 1 2   2   1 1 1 1 1 1 1 1 2   2
+##             2a0272807280fffe0203fffefffe725172cffffe0000000000000000026b99fe000d480000000000027d
+## 32      unsigned char    TurboMode;           /* In Turbo mode ? */
+ReadTurboMode {
+## offset*10   0                                1                        2                                       3                                           4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2   3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 33      unsigned char    HardwareType;        /* See below */
+## Bit Meaning
+## 1   Plus system with maximum temperature 500 K (Cryostream, Cobra and Smartstream)
+## 2   System fitted with a CryoShutter (700 series Cryostream and Cobra only)
+## 3   800 series system
+## 4   System fitted with autofill (800 series Cryostream only) (from firmware version 150)
+ReadHardwareType {
+## offset*10   0                                1                        2                                       3                                           4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3   4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%01r%*01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 34      unsigned char    ShutterState*;       /* Shutter status or LN level - see below */
+## 800 series systems do not support CryoShutter. From firmware version 110 
+## ShutterState is repurposed to report LN level for systems fitted with an 
+## AutoFill. From firmware version 150 the packet also contains an estimate 
+## of the time in minutes to the next fill.
+ReadLNLevel {
+## offset*10   0                                1                        2                                       3                                           4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4   5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%01r%*01r%*01r%*01r%*02r%*02r";
+}
+
+## 35      unsigned char    ShutterTime**        /* Shutter time remaining or Suspended flag - see below */
+
+## 36      unsigned char    AverageGasHeat       /* Average value of gas heater */
+ReadAverageGasHeat {
+## offset*10   0                                1                        2                                       3                                           4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6   7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%01r%*01r%*02r%*02r";
+}
+
+## 37      unsigned char    AverageSuctHeat      /* Average value of suct heater */
+ReadAverageSuctHeat {
+## offset*10   0                                1                        2                                       3                                           4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7   8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%01r%*02r%*02r";
+}
+
+## 38      unsigned short   TimeToFill*          /* From firmware version 150 this holds the time in mins until the next fill of the LN Dewar*/
+ReadTimeToFill {
+## offset*10   0                                1                        2                                       3                                           4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8   0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%02r%*02r";
+}
+
+## 40      unsigned short   TotalHours;          /* Total number of hours device has run */
+ReadTotalHours {
+## offset*10   0                                1                        2                                       3                                            4
+## offset%10   0   1   2    4    6    8    9    0    2    4    6    8    0    1    2    3    4    5    6    8    0    1    2    3    4    5    6    7    8    0
+    in        "\x2a\x02%*02r%*02r%*02r%*01r%*01r%*02r%*02r%*02r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%*02r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*01r%*02r%02r";
+}
+
