@@ -1,5 +1,5 @@
 ## CSCOMMAND_RESTART=10, /* Restart a Cryostream which has shutdown */
-## Meaning: Stop Cryostream and re-initialise system back to "Ready"
+## Meaning: Start Cryostream and re-initialise system back to "Ready"
 CmdRestart {
 	out 2 10;
 }
