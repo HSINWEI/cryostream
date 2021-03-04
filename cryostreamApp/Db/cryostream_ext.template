@@ -1,3 +1,10 @@
+record(seq, "$(P)$(R)DelaySetFormat") {
+  field(DESC, "Delay Set Format")
+  field(DOL1, "1")
+  field(LNK1, "$(P)$(R)SetFormat PP")
+  field(DLY1, "10")
+}
+
 record(bo, "$(P)$(R)SetFormat") {
   field(DESC, "Set Format")
   field(DTYP, "stream")
